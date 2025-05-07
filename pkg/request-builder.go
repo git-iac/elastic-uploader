@@ -19,7 +19,7 @@ func NewCreateIndexRequest(index string, body string) *esapi.IndicesCreateReques
 	return &createReq
 }
 
-func NewUploadBulkRequest(fs *fileSections) *esapi.BulkRequest {
+func NewUploadBulkRequest(fs *FileSections) *esapi.BulkRequest {
 	reader, err := createBulkRequestBody(convertToElasticDocument(fs), SectionIndex)
 	if err != nil {
 		log.Fatal(err)
@@ -31,7 +31,7 @@ func NewUploadBulkRequest(fs *fileSections) *esapi.BulkRequest {
 	return &bulkReq
 }
 
-func convertToElasticDocument(fSec *fileSections) *[]ElasticsearchDocument {
+func convertToElasticDocument(fSec *FileSections) *[]ElasticsearchDocument {
 	documents := make([]ElasticsearchDocument, 0, len((*fSec)))
 	var ed ElasticsearchDocument
 	for k, v := range *fSec {

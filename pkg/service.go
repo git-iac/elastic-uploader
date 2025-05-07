@@ -63,7 +63,7 @@ func (c *ElasticService) GetInfo(ctx context.Context) error {
 }
 
 func (c *ElasticService) UploadBulk(ctx context.Context, chunkSize int) error {
-	f, err := getFolderEntriesCount(chunkSize)
+	f, err := GetFileSections(chunkSize)
 	if err != nil {
 		return err
 	}

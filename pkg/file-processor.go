@@ -13,9 +13,9 @@ const (
 	fileExtention = ".txt"
 )
 
-type fileSections = map[string][]Section
+type FileSections = map[string][]Section
 
-func getFolderEntriesCount(chunkSize int) (*fileSections, error) {
+func GetFileSections(chunkSize int) (*FileSections, error) {
 	wd, _ := os.Getwd()
 	path := filepath.Join(wd)
 	f, err := os.Open(path)
@@ -24,7 +24,7 @@ func getFolderEntriesCount(chunkSize int) (*fileSections, error) {
 	}
 
 	defer f.Close()
-	fs := fileSections{}
+	fs := FileSections{}
 
 	for {
 		entries, err := f.ReadDir(chunkSize)
@@ -42,7 +42,7 @@ func getFolderEntriesCount(chunkSize int) (*fileSections, error) {
 	return &fs, nil
 }
 
-func parseFileMetaChunk(de []os.DirEntry, fs fileSections, path string) error {
+func parseFileMetaChunk(de []os.DirEntry, fs FileSections, path string) error {
 	for _, e := range de {
 		s := strings.Split(strings.TrimSuffix(e.Name(), fileExtention), fileSeparator)
 		content, err := readContentIntoFileMeta(filepath.Join(path, e.Name()))
