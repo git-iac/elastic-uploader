@@ -7,20 +7,24 @@ import (
 	"strings"
 )
 
-const fileSeparator = "_" // files seperators are always '_'
+const (
+	fileSeparator = "_"
+	folderName    = "sections"
+	fileExtention = ".txt"
+)
 
 type fileSections = map[string][]Section
 
 func getFolderEntriesCount(chunkSize int) (*fileSections, error) {
 	wd, _ := os.Getwd()
-	path := filepath.Join(wd, "sections")
+	path := filepath.Join(wd)
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 
 	defer f.Close()
-	fMetaMap := fileSections{}
+	fs := fileSections{}
 
 	for {
 		entries, err := f.ReadDir(chunkSize)
@@ -31,17 +35,16 @@ func getFolderEntriesCount(chunkSize int) (*fileSections, error) {
 			return nil, err
 		}
 
-		if err := parseFileMetaChunk(entries, fMetaMap, path); err != nil {
+		if err := parseFileMetaChunk(entries, fs, path); err != nil {
 			return nil, err
 		}
 	}
-	return &fMetaMap, nil
+	return &fs, nil
 }
 
 func parseFileMetaChunk(de []os.DirEntry, fs fileSections, path string) error {
 	for _, e := range de {
-		s := strings.Split(strings.TrimSuffix(e.Name(), ".txt"), fileSeparator)
-
+		s := strings.Split(strings.TrimSuffix(e.Name(), fileExtention), fileSeparator)
 		content, err := readContentIntoFileMeta(filepath.Join(path, e.Name()))
 		if err != nil {
 			return err
