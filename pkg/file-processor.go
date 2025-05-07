@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,8 +17,12 @@ const (
 type FileSections = map[string][]Section
 
 func GetFileSections(chunkSize int) (*FileSections, error) {
-	wd, _ := os.Getwd()
-	path := filepath.Join(wd)
+	goModPath, err := getRootFolderPath()
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(filepath.Dir(goModPath), folderName)
+
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -52,6 +57,21 @@ func parseFileMetaChunk(de []os.DirEntry, fs FileSections, path string) error {
 		fs[s[0]] = append(fs[s[0]], Section{SectionName: s[1], Content: string(content)})
 	}
 	return nil
+}
+
+func getRootFolderPath() (string, error) {
+	curDir, _ := os.Getwd()
+	for {
+		goModPath := filepath.Join(curDir, "go.mod")
+		if _, err := os.Stat(goModPath); err == nil {
+			return goModPath, nil
+		}
+		parentDir := filepath.Dir(goModPath)
+		if parentDir == curDir {
+			return "", errors.New("reached root dir without go.mod")
+		}
+		curDir = parentDir
+	}
 }
 
 func readContentIntoFileMeta(filepath string) ([]byte, error) {
